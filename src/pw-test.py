@@ -164,35 +164,45 @@ async def test_browser_context_isolation():
         page2 = await context2.new_page()
         
         # Set different storage states
-        await page1.goto("https://your-application.com/login")
-        await page1.fill("#username", "user1@example.com")
-        await page1.fill("#password", "password1")
+        await page1.goto("https://www.saucedemo.com/")
+        await page1.fill("#user-name", "standard_user")
+        await page1.fill("#password", "secret_sauce")
         await page1.click("#login-button")
-        await page1.wait_for_selector(".welcome-message")
+        await page1.wait_for_selector(".app_logo")
+        await page1.click("#add-to-cart-sauce-labs-backpack")
         
         # Save storage state (cookies, local storage)
         storage_state1 = await context1.storage_state()
         
         # Different user in the second context
-        await page2.goto("https://your-application.com/login")
-        await page2.fill("#username", "user2@example.com")
-        await page2.fill("#password", "password2")
+        await page2.goto("https://www.saucedemo.com/")
+        await page2.fill("#user-name", "problem_user")
+        await page2.fill("#password", "secret_sauce")
         await page2.click("#login-button")
-        await page2.wait_for_selector(".welcome-message")
+        await page2.wait_for_selector(".app_logo")
+        await page2.click("#add-to-cart-sauce-labs-bike-light")
         
         # Demonstrate isolation - actions in one context don't affect the other
-        await page1.goto("https://your-application.com/profile")
-        await expect(page1.locator(".username")).to_have_text("user1@example.com")
+        await page1.goto("https://www.saucedemo.com/cart.html")
+        # screenshot of the cart in context1
+        await page1.locator(".inventory_item_desc:has-text('Sly Pack')").highlight()
+        await page1.screenshot(path="cart_context1.png")
+
         
-        await page2.goto("https://your-application.com/profile")
-        await expect(page2.locator(".username")).to_have_text("user2@example.com")
-        
+        await page2.goto("https://www.saucedemo.com/cart.html")
+        # screenshot of the cart in context2
+        await page2.locator(".inventory_item_desc:has-text('AAA Battery')").highlight()
+        await page2.screenshot(path="cart_context2.png")
+
+
         # Create a new context with saved storage state (for CI/CD reuse)
         context3 = await browser.new_context(storage_state=storage_state1)
         page3 = await context3.new_page()
-        await page3.goto("https://your-application.com/profile")
-        await expect(page3.locator(".username")).to_have_text("user1@example.com")
-        
+        await page3.goto("https://www.saucedemo.com/cart.html")
+        # screenshot of the cart in context3
+        await page3.locator(".inventory_item_desc:has-text('Sly Pack')").highlight()
+        await page3.screenshot(path="cart_context3.png")
+
         await browser.close()
 
 
@@ -282,14 +292,14 @@ async def run_test_scenario(browser, scenario):
 
 # Run all examples
 async def main():
-    print("1. Running Network Interception Example...")
-    await test_network_interception()
+    # print("1. Running Network Interception Example...")
+    # await test_network_interception()
     
-    print("\n2. Running Visual Validation Example...")
-    await test_visual_validation()
+    # print("\n2. Running Visual Validation Example...")
+    # await test_visual_validation()
     
-    # print("\n3. Running Browser Context Isolation Example...")
-    # await test_browser_context_isolation()
+    print("\n3. Running Browser Context Isolation Example...")
+    await test_browser_context_isolation()
     
     # print("\n4. Running CI/CD Pipeline Example...")
     # await run_parallel_tests()
