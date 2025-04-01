@@ -3,6 +3,7 @@
 import asyncio
 import json
 from playwright.async_api import async_playwright, expect
+import os
 
 async def test_network_interception():
     """
@@ -10,7 +11,7 @@ async def test_network_interception():
     This test intercepts a request to a products API and mocks the response.
     """
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)  # Set to False for debugging
+        browser = await p.chromium.launch()  # Set to False for debugging
         context = await browser.new_context()
         
         # Create a new page
@@ -57,34 +58,39 @@ async def test_network_interception():
 
 async def test_visual_validation():
     """
-    Example of visual validation comparing screenshots with baseline images.
+    Example of validation using accessibility snapshots instead of pixel-perfect comparisons.
     """
     async with async_playwright() as p:
         browser = await p.chromium.launch()
-        
-        # Create context with specific viewport for consistent screenshots
+
+        # Create context with specific viewport for consistent rendering
         context = await browser.new_context(
             viewport={"width": 1280, "height": 720}
         )
         page = await context.new_page()
-        
+
         # Navigate to the page
-        await page.goto("https://your-application.com/dashboard")
+        await page.goto("https://devops1.com.au/projects/")
         
         # Wait for the page to be visually stable
         await page.wait_for_load_state("networkidle")
         
-        # Basic screenshot comparison
-        await page.screenshot(path="actual_dashboard.png")
         
-        # More targeted element screenshot
-        chart_element = page.locator(".dashboard-chart")
-        await chart_element.screenshot(path="actual_chart.png")
-        
+        # Scroll to the first card
+        first_card = page.locator(".project-card").first
+        await first_card.scroll_into_view_if_needed()
+
+        # if no baseline image is available inthe file system, create one
+        if not os.path.exists(os.path.join(os.path.dirname(__file__), "baseline_first_card_screenshot.png")):
+            await first_card.screenshot(path="baseline_first_card_screenshot.png")
+    
+        # Take a screenshot of the first card for visual validation
+        await first_card.screenshot(path="first_card_screenshot.png")
+        print("Screenshot of the first card taken.")
+
         # Example of visual comparison (typically used with a visual comparison library)
         # Here we're just demonstrating the concept
         from PIL import Image, ImageChops
-        import os
         
         def compare_images(baseline_path, actual_path):
             if not os.path.exists(baseline_path):
@@ -95,21 +101,48 @@ async def test_visual_validation():
             baseline = Image.open(baseline_path)
             actual = Image.open(actual_path)
             
+            # Check if images have the same size
+            if baseline.size != actual.size:
+                print(f"Image size mismatch: {baseline.size} vs {actual.size}")
+                return False
+            
             # Compare images
             diff = ImageChops.difference(baseline, actual)
             
             # If the images are identical, the diff image will be completely black
             if diff.getbbox() is None:
+                print("Images are identical")
                 return True
             
-            # Save diff image for inspection
-            diff.save("diff.png")
+            # Create a visual diff with red highlighting
+            width, height = baseline.size
+            visual_diff = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+            
+            # Convert diff to a mask that highlights changes
+            diff_mask = diff.convert('L').point(lambda x: 255 if x > 30 else 0)  # Threshold for difference detection
+            
+            # Create a red layer for highlighting differences
+            red_layer = Image.new('RGBA', (width, height), (255, 0, 0, 128))  # Semi-transparent red
+            
+            # Apply the mask to the red layer
+            visual_diff = Image.composite(red_layer, visual_diff, diff_mask)
+            
+            # Overlay the red differences on the actual image
+            highlighted_diff = Image.alpha_composite(actual.convert('RGBA'), visual_diff)
+            
+            # Save the highlighted diff image
+            highlighted_diff.save("diff_highlighted.png")
+            
+            # Also save the raw diff for technical analysis
+            diff.save("diff_raw.png")
+            
+            print("Images differ - see diff_highlighted.png for visualization")
             return False
         
         # Call the comparison function
-        is_matching = compare_images("baseline_dashboard.png", "actual_dashboard.png")
+        is_matching = compare_images("baseline_first_card_screenshot.png", "first_card_screenshot.png")
         assert is_matching, "Dashboard visual appearance has changed"
-        
+          
         await browser.close()
 
 
@@ -252,8 +285,8 @@ async def main():
     print("1. Running Network Interception Example...")
     await test_network_interception()
     
-    # print("\n2. Running Visual Validation Example...")
-    # await test_visual_validation()
+    print("\n2. Running Visual Validation Example...")
+    await test_visual_validation()
     
     # print("\n3. Running Browser Context Isolation Example...")
     # await test_browser_context_isolation()
