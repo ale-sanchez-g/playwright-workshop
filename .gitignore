@@ -175,3 +175,7 @@ cython_debug/
 
 # Project specific
 playwright-venv/
+
+ts-src/node_modules/
+ts-src/playwright-reports/
+ts-src/test-results/

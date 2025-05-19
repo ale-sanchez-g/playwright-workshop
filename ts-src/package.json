@@ -1,0 +1,27 @@
+{
+  "name": "playwright-workshop-ts",
+  "version": "1.0.0",
+  "description": "TypeScript version of Playwright workshop",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "install-browsers": "playwright install",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui"
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "testing",
+    "visual-testing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.39.0",
+    "@types/node": "^20.9.0", 
+    "canvas": "^3.1.0",
+    "typescript": "^5.2.2"
+  }
+}
