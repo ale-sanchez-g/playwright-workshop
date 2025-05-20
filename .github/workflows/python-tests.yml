@@ -33,7 +33,7 @@ jobs:
       run: python -m playwright install --with-deps
     - name: Run your tests
       working-directory: ./src
-      run: pytest --tracing=retain-on-failure
+      run: python pw-test.py 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
