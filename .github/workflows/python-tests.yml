@@ -1,0 +1,47 @@
+name: Python Playwright Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  test:
+    name: Run Python Playwright Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+        cache-dependency-path: './src/requirements.txt'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install Playwright browsers
+      run: playwright install --with-deps chromium
+
+    - name: Run Playwright tests
+      run: python -m pytest pw-test.py -v
+
+    - name: Upload test results and screenshots
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-python
+        path: |
+          src/*.png
+          src/**/test-results/
+        retention-days: 30
