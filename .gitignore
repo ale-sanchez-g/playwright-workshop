@@ -177,5 +177,7 @@ cython_debug/
 playwright-venv/
 
 ts-src/node_modules/
-ts-src/playwright-reports/
+ts-src/playwright-report/
 ts-src/test-results/
+ts-src/screenshots/
+ts-src/videos/

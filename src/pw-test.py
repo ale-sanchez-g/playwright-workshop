@@ -216,12 +216,17 @@ async def run_parallel_tests():
         # Launch browser once and reuse for multiple tests
         browser = await p.chromium.launch()
         
-        # Define list of test scenarios
+        # Define list of test scenarios with real devops1.com.au pages
         test_scenarios = [
-            {"name": "login", "url": "/login", "expect_selector": ".dashboard"},
-            {"name": "products", "url": "/products", "expect_selector": ".product-list"},
-            {"name": "checkout", "url": "/checkout", "expect_selector": ".payment-form"}
+            {"name": "homepage", "url": "/", "expect_selector": "text=Anticipate is the first line of defence"},
+            {"name": "projects", "url": "/projects/", "expect_selector": "text=Featured Projects"},
+            {"name": "about", "url": "/about/", "expect_selector": "text=We are technology obsessed"},
+            {"name": "services", "url": "/services/", "expect_selector": "text=Uplifting engineering practices"}
         ]
+        
+        # Create output directories if they don't exist
+        os.makedirs("screenshots", exist_ok=True)
+        os.makedirs("videos", exist_ok=True)
         
         # Run tests in parallel
         tasks = []
@@ -271,11 +276,29 @@ async def run_test_scenario(browser, scenario):
         page.on("console", lambda msg: print(f"BROWSER LOG: {msg.text}"))
         
         # Navigate to test URL
-        base_url = "https://your-application.com"
+        base_url = "https://devops1.com.au"
         await page.goto(f"{base_url}{scenario['url']}")
         
         # Wait for expected element
         await page.wait_for_selector(scenario["expect_selector"], timeout=10000)
+        
+        # Verify page title contains DevOps1
+        title = await page.title()
+        assert "DevOps1" in title, f"Page title does not contain 'DevOps1': {title}"
+        
+        # Take a performance measurement (optional)
+        performance = await page.evaluate("""() => {
+            const navigation = performance.getEntriesByType('navigation')[0];
+            return {
+                loadTime: navigation.loadEventEnd - navigation.startTime,
+                domContentLoaded: navigation.domContentLoadedEventEnd - navigation.startTime
+            }
+        }""")
+        
+        print(f"📊 Performance for '{scenario['name']}': Load time: {performance['loadTime']:.2f}ms, DOM loaded: {performance['domContentLoaded']:.2f}ms")
+        
+        # Take a screenshot for documentation
+        await page.screenshot(path=f"screenshots/success_{scenario['name']}.png")
         
         # Test passed
         print(f"✅ Test '{scenario['name']}' passed")
@@ -292,18 +315,18 @@ async def run_test_scenario(browser, scenario):
 
 # Run all examples
 async def main():
-    # print("1. Running Network Interception Example...")
-    # await test_network_interception()
+    print("1. Running Network Interception Example...")
+    await test_network_interception()
     
-    # print("\n2. Running Visual Validation Example...")
-    # await test_visual_validation()
+    print("\n2. Running Visual Validation Example...")
+    await test_visual_validation()
     
     print("\n3. Running Browser Context Isolation Example...")
     await test_browser_context_isolation()
     
-    # print("\n4. Running CI/CD Pipeline Example...")
-    # await run_parallel_tests()
+    print("\n4. Running CI/CD Pipeline Example...")
+    await run_parallel_tests()
 
-# Uncomment to run all examples
+# Run all examples
 if __name__ == "__main__":
     asyncio.run(main())

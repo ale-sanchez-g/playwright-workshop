@@ -253,12 +253,22 @@ test('parallel tests example', async ({ browser }) => {
    * Example of running tests in parallel for CI/CD pipelines.
    */
   
-  // Define list of test scenarios
+  // Define list of test scenarios with real devops1.com.au pages
   const testScenarios = [
-    { name: 'login', url: '/login', expectSelector: '.dashboard' },
-    { name: 'products', url: '/products', expectSelector: '.product-list' },
-    { name: 'checkout', url: '/checkout', expectSelector: '.payment-form' }
+    { name: 'homepage', url: '/', expectSelector: 'text=Anticipate is the first line of defence' },
+    { name: 'projects', url: '/projects/', expectSelector: 'text=Featured Projects' },
+    { name: 'about', url: '/about/', expectSelector: 'text=We are technology obsessed' },
+    { name: 'services', url: '/services/', expectSelector: 'text=Uplifting engineering practices' }
   ];
+  
+  // Ensure directories exist
+  const fs = require('fs');
+  if (!fs.existsSync('screenshots')) {
+    fs.mkdirSync('screenshots', { recursive: true });
+  }
+  if (!fs.existsSync('videos')) {
+    fs.mkdirSync('videos', { recursive: true });
+  }
   
   // Create promises for all scenarios
   const promises = testScenarios.map(scenario => runTestScenario(browser, scenario));
@@ -304,15 +314,30 @@ async function runTestScenario(browser: Browser, scenario: { name: string; url: 
   try {
     const page = await context.newPage();
     
-    // Add test artifacts for CI/CD debugging
-    page.on('console', msg => console.log(`BROWSER LOG: ${msg.text()}`));
-    
     // Navigate to test URL
-    const baseUrl = 'https://your-application.com';
+    const baseUrl = 'https://devops1.com.au';
     await page.goto(`${baseUrl}${scenario.url}`);
     
     // Wait for expected element
     await page.waitForSelector(scenario.expectSelector, { timeout: 10000 });
+    
+    // Verify page title contains DevOps1
+    const title = await page.title();
+    expect(title).toContain('DevOps1');
+    
+    // Take a performance measurement (optional)
+    const performance = await page.evaluate(() => {
+      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      return {
+        loadTime: navigation.loadEventEnd - navigation.startTime,
+        domContentLoaded: navigation.domContentLoadedEventEnd - navigation.startTime
+      };
+    });
+    
+    console.log(`📊 Performance for '${scenario.name}': Load time: ${performance.loadTime.toFixed(2)}ms, DOM loaded: ${performance.domContentLoaded.toFixed(2)}ms`);
+    
+    // Take a screenshot for documentation
+    await page.screenshot({ path: `screenshots/success_${scenario.name}.png` });
     
     // Test passed
     console.log(`✅ Test '${scenario.name}' passed`);
