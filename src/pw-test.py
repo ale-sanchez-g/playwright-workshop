@@ -272,9 +272,6 @@ async def run_test_scenario(browser, scenario):
     try:
         page = await context.new_page()
         
-        # Add test artifacts for CI/CD debugging
-        page.on("console", lambda msg: print(f"BROWSER LOG: {msg.text}"))
-        
         # Navigate to test URL
         base_url = "https://devops1.com.au"
         await page.goto(f"{base_url}{scenario['url']}")

@@ -181,3 +181,6 @@ ts-src/playwright-report/
 ts-src/test-results/
 ts-src/screenshots/
 ts-src/videos/
+
+src/screenshots/
+src/videos/
