@@ -215,22 +215,10 @@ test('browser context isolation', async ({ browser }) => {
   // Demonstrate isolation - actions in one context don't affect the other
   await page1.goto('https://www.saucedemo.com/cart.html');
   // Screenshot of the cart in context1
-  await page1.evaluate(() => {
-    const element = document.querySelector('.inventory_item_desc:has-text("Sly Pack")');
-    if (element && element instanceof HTMLElement) {
-      (element as HTMLElement).style.outline = '2px solid red';
-    }
-  });
   await page1.screenshot({ path: 'cart_context1.png' });
   
   await page2.goto('https://www.saucedemo.com/cart.html');
   // Screenshot of the cart in context2
-  await page2.evaluate(() => {
-    const element = document.querySelector('.inventory_item_desc:has-text("AAA Battery")');
-    if (element && element instanceof HTMLElement) {
-      element.style.outline = '2px solid red';
-    }
-  });
   await page2.screenshot({ path: 'cart_context2.png' });
   
   // Create a new context with saved storage state (for CI/CD reuse)
@@ -238,12 +226,6 @@ test('browser context isolation', async ({ browser }) => {
   const page3 = await context3.newPage();
   await page3.goto('https://www.saucedemo.com/cart.html');
   // Screenshot of the cart in context3
-  await page3.evaluate(() => {
-    const element = document.querySelector('.inventory_item_desc:has-text("Sly Pack")');
-    if (element) {
-      element.style.outline = '2px solid red';
-    }
-  });
   await page3.screenshot({ path: 'cart_context3.png' });
 });
 
@@ -326,15 +308,15 @@ async function runTestScenario(browser: Browser, scenario: { name: string; url: 
     expect(title).toContain('DevOps1');
     
     // Take a performance measurement (optional)
-    const performance = await page.evaluate(() => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    const perfMetrics = await page.evaluate(() => {
+      const navigation = window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
       return {
         loadTime: navigation.loadEventEnd - navigation.startTime,
         domContentLoaded: navigation.domContentLoadedEventEnd - navigation.startTime
       };
     });
     
-    console.log(`📊 Performance for '${scenario.name}': Load time: ${performance.loadTime.toFixed(2)}ms, DOM loaded: ${performance.domContentLoaded.toFixed(2)}ms`);
+    console.log(`📊 Performance for '${scenario.name}': Load time: ${perfMetrics.loadTime.toFixed(2)}ms, DOM loaded: ${perfMetrics.domContentLoaded.toFixed(2)}ms`);
     
     // Take a screenshot for documentation
     await page.screenshot({ path: `screenshots/success_${scenario.name}.png` });
