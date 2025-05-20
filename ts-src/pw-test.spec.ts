@@ -1,9 +1,7 @@
 // 1. Mocking and Network Interception
 
-import { test, expect, chromium, Page, Browser, BrowserContext } from '@playwright/test';
-import * as fs from 'fs';
-import * as path from 'path';
-import { createCanvas, loadImage, Image, ImageData } from 'canvas';
+import { test, expect } from '@playwright/test';
+
 
 // 1. Mocking and Network Interception
 test('network interception', async ({ page }) => {
