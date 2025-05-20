@@ -229,109 +229,27 @@ test('browser context isolation', async ({ browser }) => {
   await page3.screenshot({ path: 'cart_context3.png' });
 });
 
-// 4. Enhancing CI/CD Pipeline
-test('parallel tests example', async ({ browser }) => {
-  /**
-   * Example of running tests in parallel for CI/CD pipelines.
-   */
-  
-  // Define list of test scenarios with real devops1.com.au pages
-  const testScenarios = [
-    { name: 'homepage', url: '/', expectSelector: 'text=Anticipate is the first line of defence' },
-    { name: 'projects', url: '/projects/', expectSelector: 'text=Featured Projects' },
-    { name: 'about', url: '/about/', expectSelector: 'text=We are technology obsessed' },
-    { name: 'services', url: '/services/', expectSelector: 'text=Uplifting engineering practices' }
-  ];
-  
-  // Ensure directories exist
-  const fs = require('fs');
-  if (!fs.existsSync('screenshots')) {
-    fs.mkdirSync('screenshots', { recursive: true });
-  }
-  if (!fs.existsSync('videos')) {
-    fs.mkdirSync('videos', { recursive: true });
-  }
-  
-  // Create promises for all scenarios
-  const promises = testScenarios.map(scenario => runTestScenario(browser, scenario));
-  
-  // Run tests in parallel and wait for all to complete
-  const results = await Promise.allSettled(promises);
-  
-  // Process results
-  const failedTests: { scenario: string; error: string }[] = [];
-  
-  results.forEach((result, index) => {
-    if (result.status === 'rejected') {
-      failedTests.push({
-        scenario: testScenarios[index].name,
-        error: result.reason.toString()
-      });
-    }
-  });
-  
-  // Output results for CI/CD pipeline
-  if (failedTests.length > 0) {
-    for (const failed of failedTests) {
-      console.log(`❌ Test '${failed.scenario}' failed: ${failed.error}`);
-    }
-    // In a real CI/CD pipeline, you'd use this to determine build success/failure
-    console.log('Exiting with code: 1');
-  } else {
-    console.log('✅ All tests passed!');
-    console.log('Exiting with code: 0');
-  }
+// 4. Page Navigation Tests
+test('homepage navigation', async ({ page }) => {
+  await page.goto('https://devops1.com.au/');
+  await expect(page.locator('text=Anticipate is the first line of defence')).toBeVisible();
+  expect(await page.title()).toContain('DevOps1');
 });
 
-async function runTestScenario(browser: Browser, scenario: { name: string; url: string; expectSelector: string }): Promise<void> {
-  /**
-   * Helper function to run a single test scenario.
-   */
-  // Create a new context for each test for isolation
-  const context = await browser.newContext({
-    recordVideo: { dir: 'videos/' },  // Record video for failed tests
-    viewport: { width: 1280, height: 720 }
-  });
-  
-  try {
-    const page = await context.newPage();
-    
-    // Navigate to test URL
-    const baseUrl = 'https://devops1.com.au';
-    await page.goto(`${baseUrl}${scenario.url}`);
-    
-    // Wait for expected element
-    await page.waitForSelector(scenario.expectSelector, { timeout: 10000 });
-    
-    // Verify page title contains DevOps1
-    const title = await page.title();
-    expect(title).toContain('DevOps1');
-    
-    // Take a performance measurement (optional)
-    const perfMetrics = await page.evaluate(() => {
-      const navigation = window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-      return {
-        loadTime: navigation.loadEventEnd - navigation.startTime,
-        domContentLoaded: navigation.domContentLoadedEventEnd - navigation.startTime
-      };
-    });
-    
-    console.log(`📊 Performance for '${scenario.name}': Load time: ${perfMetrics.loadTime.toFixed(2)}ms, DOM loaded: ${perfMetrics.domContentLoaded.toFixed(2)}ms`);
-    
-    // Take a screenshot for documentation
-    await page.screenshot({ path: `screenshots/success_${scenario.name}.png` });
-    
-    // Test passed
-    console.log(`✅ Test '${scenario.name}' passed`);
-    
-  } catch (e) {
-    // Take screenshot on failure
-    const page = await context.newPage();
-    await page.screenshot({ path: `screenshots/failed_${scenario.name}.png` });
-    throw e;
-    
-  } finally {
-    // Always close the context to clean up
-    await context.close();
-  }
-}
+test('projects page navigation', async ({ page }) => {
+  await page.goto('https://devops1.com.au/projects/');
+  await expect(page.locator('text=Featured Projects')).toBeVisible();
+  expect(await page.title()).toContain('DevOps1');
+});
+
+test('about page navigation', async ({ page }) => {
+  await page.goto('https://devops1.com.au/about/');
+  await expect(page.locator('text=We are technology obsessed')).toBeVisible();
+  expect(await page.title()).toContain('DevOps1');
+});
+
+test('services page navigation', async ({ page }) => {
+  await page.goto('https://devops1.com.au/services/');
+  await expect(page.locator('text=Uplifting engineering practices')).toBeVisible();
+  expect(await page.title()).toContain('DevOps1');
+});
