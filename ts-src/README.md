@@ -20,6 +20,19 @@ This is the TypeScript version of the Playwright workshop examples. The project 
    - Video recording
    - Error reporting and screenshots
 
+5. **Playwright MCP**
+   - Connect MCP to VSCode and Github Copilot
+   - Generate a Black box test cases
+
+```txt
+Generate a Playwright test for the following scenario:
+- Given you are a new visitor Navigate to https://devops1.com.au
+- And you Click on the contact us button
+- Then you are redirected to the contact us form
+- And when you fill the form with with all the relevant details
+- Then you are ready to submit the form
+```
+
 ## Requirements
 
 - Node.js 16+ 
@@ -61,3 +74,4 @@ npx playwright test --debug
 - Handling of multiple user sessions
 - Storage state management
 - CI/CD pipeline integration
+- Playwright MCP with Github Copilot (ts only)
