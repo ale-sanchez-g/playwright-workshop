@@ -133,7 +133,7 @@ test('homepage navigation', async ({ page }) => {
 
 test('projects page navigation', async ({ page }) => {
   await page.goto('https://devops1.com.au/projects/');
-  await expect(page.locator('text=Featured Projects')).toBeVisible();
+  await expect(page.locator('h1:has-text("PROJECTS")')).toBeVisible();
   expect(await page.title()).toContain('DevOps1');
 });
 

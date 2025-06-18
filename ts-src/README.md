@@ -15,12 +15,17 @@ This is the TypeScript version of the Playwright workshop examples. The project 
    - Managing state between contexts
    - Reusing authentication states
 
-4. **CI/CD Integration**
+4. **Accessibility Testing with ARIA Snapshots**
+   - Testing page accessibility using ARIA snapshots
+   - Validating navigation menu accessibility structure
+   - Ensuring proper semantic markup and roles
+
+5. **CI/CD Integration**
    - Parallel test execution
    - Video recording
    - Error reporting and screenshots
 
-5. **Playwright MCP**
+6. **Playwright MCP**
    - Connect MCP to VSCode and Github Copilot
    - Generate a Black box test cases
 
@@ -54,6 +59,9 @@ npm test
 # Run specific test
 npx playwright test pw-test.spec.ts
 
+# Run accessibility tests
+npx playwright test accesibility.spec.ts
+
 # Run in headed mode (to see the browser)
 npx playwright test --headed
 
@@ -64,6 +72,7 @@ npx playwright test --debug
 ## Project Structure
 
 - `pw-test.spec.ts` - Main test file with all examples
+- `accesibility.spec.ts` - Accessibility tests using ARIA snapshots
 - `playwright.config.ts` - Playwright configuration
 
 ## Key Features Demonstrated
@@ -73,5 +82,6 @@ npx playwright test --debug
 - Browser context isolation for parallel testing
 - Handling of multiple user sessions
 - Storage state management
+- ARIA snapshot testing for accessibility validation
 - CI/CD pipeline integration
 - Playwright MCP with Github Copilot (ts only)
