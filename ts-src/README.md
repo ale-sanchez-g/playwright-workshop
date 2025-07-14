@@ -30,12 +30,15 @@ This is the TypeScript version of the Playwright workshop examples. The project 
    - Generate a Black box test cases
 
 ```txt
-Generate a Playwright test for the following scenario:
-- Given you are a new visitor Navigate to https://devops1.com.au
+Using the Playwright MCP navigate to https://devops1.com.au
+- Expand to a Desktop viewport
 - And you Click on the contact us button
 - Then you are redirected to the contact us form
 - And when you fill the form with with all the relevant details
 - Then you are ready to submit the form
+
+After this flow create a new file pw.mcp.spec.ts and create the same test
+using playwright to execute in my CI/CD tool later
 ```
 
 ## Requirements
