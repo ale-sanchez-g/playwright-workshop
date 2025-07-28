@@ -46,7 +46,7 @@ jobs:
       
     - name: Run Playwright tests
       working-directory: ./ts-src
-      run: npx playwright test --update-snapshots
+      run: npx playwright test
       
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
