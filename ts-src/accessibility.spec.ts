@@ -36,15 +36,19 @@ test.describe('Accessibility Tests', () => {
               - img "DevOps1"
             - list:
               - listitem:
-                - button "Services"
+                - link "Services":
+                  - /url: "#"
               - listitem:
-                - button "Engage"
+                - link "Engage":
+                  - /url: "#"
               - listitem:
                 - button "Projects"
               - listitem:
-                - button "Industries"
+                - link "Industries":
+                  - /url: "#"
               - listitem:
-                - button "Company"
+                - link "Company":
+                  - /url: "#"
             - link "Buy in AWS":
               - /url: https://aws.amazon.com/marketplace/seller-profile?id=0e63f3e3-6942-4852-aee5-973e4559d60b
             - link "Contact us":
