@@ -5,7 +5,7 @@ export default defineConfig({
   timeout: 30000,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : 4,
+  workers: process.env.CI ? 4 : 4,
   fullyParallel: true, // Run all tests in parallel
   reporter: 'html',
   use: {
