@@ -1,0 +1,50 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: ${{ matrix.test-group }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-group: ['accessibility-contact', 'main-page']
+        include:
+          - test-group: 'accessibility-contact'
+            test-files: 'accessibility.spec.ts contact-form.spec.ts'
+          - test-group: 'main-page'
+            test-files: 'pw-test.spec.ts'
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './ts-src/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./ts-src
+        run: npm ci
+        
+      - name: Install Playwright
+        working-directory: ./ts-src
+        run: npx playwright install --with-deps
+        
+      - name: Run ${{ matrix.test-group }} tests
+        working-directory: ./ts-src
+        run: npx playwright test ${{ matrix.test-files }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-${{ matrix.test-group }}
+          path: ts-src/playwright-report/
+          retention-days: 7

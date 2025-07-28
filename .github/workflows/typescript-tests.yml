@@ -19,18 +19,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+        cache: 'npm'
+        cache-dependency-path: './ts-src/package-lock.json'
+
     - name: Install dependencies
       working-directory: ./ts-src
-      run: npm install
+      run: npm ci  # Using ci instead of install for more reliable builds
+      
+    - name: Cache Playwright browsers
+      id: playwright-cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          playwright-${{ runner.os }}-
+          
     - name: Install Playwright Browsers
       working-directory: ./ts-src
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
       run: npx playwright install --with-deps
+      
     - name: Run Playwright tests
       working-directory: ./ts-src
       run: npx playwright test
+      
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
