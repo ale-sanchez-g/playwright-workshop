@@ -38,8 +38,8 @@ test('network interception', async ({ page }) => {
   await page.screenshot({ path: 'card_screenshot.png' });
   // Validate the mocked content
   const projectCard = page.locator('.project-card').first();
-  await expect(projectCard).toHaveText('SUPREME COURT OF MCP');
-  await expect(projectCard).toHaveAttribute('href', '/#');
+  await expect(projectCard.locator('.project-industry')).toHaveText('MOCKED SECTOR');
+  await expect(projectCard.locator('.project-title')).toHaveText('SUPREME COURT OF MCP');
   await expect(projectCard.locator('img')).toHaveAttribute('src', '/assets/img/public-sector.jpg');
   console.log('Mocked project card validation passed.');
 
