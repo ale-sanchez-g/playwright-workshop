@@ -32,16 +32,17 @@ test('network interception', async ({ page }) => {
   // Wait for network to be idle
   await page.waitForLoadState('networkidle');
   
-  try {
-    // Go to Mocked card
-    await page.locator('.project-card').hover();
-    // Take a screenshot for verification
-    await page.screenshot({ path: 'card_screenshot.png' });
-  } catch (e) {
-    // Take screenshot on failure for debugging
-    await page.screenshot({ path: 'error_screenshot.png' });
-    console.log(`Error occurred: ${e}`);
-  }
+  // Go to Mocked card
+  await page.locator('.project-card').hover();
+  // Take a screenshot for verification
+  await page.screenshot({ path: 'card_screenshot.png' });
+  // Validate the mocked content
+  const projectCard = page.locator('.project-card').first();
+  await expect(projectCard).toHaveText('SUPREME COURT OF MCP');
+  await expect(projectCard).toHaveAttribute('href', '/#');
+  await expect(projectCard.locator('img')).toHaveAttribute('src', '/assets/img/public-sector.jpg');
+  console.log('Mocked project card validation passed.');
+
 });
 
 // 2. Visual Validations
