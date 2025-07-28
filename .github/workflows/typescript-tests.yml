@@ -35,9 +35,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/ms-playwright
-        key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-playwright-${{ hashFiles('ts-src/package-lock.json') }}
         restore-keys: |
-          playwright-${{ runner.os }}-
+          ${{ runner.os }}-playwright-
           
     - name: Install Playwright Browsers
       working-directory: ./ts-src
