@@ -1,0 +1,90 @@
+name: .NET Hello World
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Create Hello World App
+      run: |
+        mkdir -p HelloWorldApp
+        cd HelloWorldApp
+        dotnet new console --output .
+        cat > Program.cs << 'EOL'
+        using System;
+
+        namespace HelloWorld
+        {
+            class Program
+            {
+                static void Main(string[] args)
+                {
+                    Console.WriteLine("Hello, World!");
+                }
+
+                public static string GetMessage()
+                {
+                    return "Hello, World!";
+                }
+            }
+        }
+        EOL
+    
+    - name: Build
+      run: |
+        cd HelloWorldApp
+        dotnet build --configuration Release
+    
+    - name: Create Test Project
+      run: |
+        mkdir -p HelloWorldTests
+        cd HelloWorldTests
+        dotnet new xunit
+        dotnet add package Microsoft.NET.Test.Sdk
+        dotnet add package xunit
+        dotnet add package xunit.runner.visualstudio
+        dotnet add reference ../HelloWorldApp/HelloWorldApp.csproj
+        cat > ProgramTests.cs << 'EOL'
+        using System;
+        using Xunit;
+        using HelloWorld;
+
+        namespace HelloWorldTests
+        {
+            public class ProgramTests
+            {
+                [Fact]
+                public void TestGetMessage()
+                {
+                    string result = Program.GetMessage();
+                    Assert.Equal("Hello, World!", result);
+                }
+            }
+        }
+        EOL
+    
+    - name: Test
+      run: |
+        cd HelloWorldTests
+        dotnet test
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: hello-world-app
+        path: |
+          HelloWorldApp/bin/Release/net*/**
